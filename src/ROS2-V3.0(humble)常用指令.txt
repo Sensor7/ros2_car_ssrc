@@ -1,0 +1,156 @@
+nfs挂载:
+sudo mount -t nfs 192.168.0.100:/home/wheeltec/wheeltec_robot /mnt
+nfs解除挂载:
+sudo umount -t nfs 192.168.0.100:/home/wheeltec/wheeltec_robot /mnt
+
+
+1、打开机器人底盘
+ros2 launch turn_on_wheeltec_robot turn_on_wheeltec_robot.launch.py
+
+2、打开底盘控制
+ros2 launch turn_on_wheeltec_robot turn_on_wheeltec_robot.launch.py
+
+3、打开相机
+ros2 launch turn_on_wheeltec_robot wheeltec_camera.launch.py
+
+4、打开雷达
+ros2 launch turn_on_wheeltec_robot wheeltec_lidar.launch.py
+
+打开雷达、相机和底盘：
+ros2 launch turn_on_wheeltec_robot wheeltec_sensors.launch.py
+
+5、打开键盘控制
+ros2 run wheeltec_robot_keyboard wheeltec_keyboard 
+
+6、简单跟随功能
+① 雷达跟随
+ros2 launch simple_follower_ros2 laser_follower.launch.py
+
+② 视觉巡线
+ros2 launch simple_follower_ros2 line_follower.launch.py
+
+③ 视觉跟踪
+ros2 launch simple_follower_ros2 visual_follower.launch.py
+
+③ KCF跟随
+ros2 launch wheeltec_robot_kcf wheeltec_robot_kcf.launch.py
+
+7、2D建图
+①使用gmapping建图
+ros2 launch slam_gmapping slam_gmapping.launch.py
+
+②使用slam_toolbox建图
+ros2 launch wheeltec_slam_toolbox online_async_launch.py
+
+③使用cartographer建图
+ros2 launch wheeltec_cartographer cartographer.launch.py
+
+保存地图
+ros2 launch wheeltec_nav2 save_map.launch.py
+
+8、2D导航[包含多点导航]
+ros2 launch wheeltec_nav2 wheeltec_nav2.launch.py
+
+10、RTAB-MAP建图
+ros2 launch wheeltec_robot_rtab wheeltec_slam_rtab.launch.py
+保存地图
+ros2 launch wheeltec_nav2 save_map.launch.py
+
+11、RTAB-MAP导航
+step1：
+ros2 launch wheeltec_robot_rtab rtabmap_localization.launch.py
+step2：
+ros2 launch wheeltec_robot_rtab wheeltec_nav2_rtab.launch.py
+
+12、ORB Slam
+ros2 launch orb_slam2_ros orb_slam2_Astra_rgbd_launch.py
+
+13、多机编队[详细操作要看功能手册]
+
+step1：在主车端中运行多机编队导航程序
+ros2 launch wheeltec_multi navigation.launch.py
+step2：在从机端中分别运行编队程序
+ros2 launch wheeltec_multi wheeltec_slave.launch.py
+step3：在主车端打开键盘控制节点控制主车运动
+ros2 run wheeltec_robot_keyboard wheeltec_keyboard 
+
+
+14、ROS2 QT功能
+ros2 launch qt_ros_test qt_ros_test.launch.py 
+
+15、WEB浏览器显示摄像头
+step1：打开相机
+ros2 launch turn_on_wheeltec_robot wheeltec_camera.launch.py
+step2：
+ros2 run web_video_server web_video_server
+step3:浏览器输入地址后即可查看实时视频监控
+http://192.168.0.100:8080/
+
+16、USB手柄控制
+ros2 launch wheeltec_joy wheeltec_joy.launch.py
+
+17、语音控制
+//开启麦克风阵列初始化节点
+ros2 launch wheeltec_mic_ros2 mic_init.launch.py
+//开启小车功能初始化节点
+ros2 launch wheeltec_mic_ros2 base.launch.py
+
+18、自动回充功能
+修改车型和电池容量
+打开 auto_recharge_ros2/robot_info.yaml 文件，选择与当前小车匹配的车型和电池容量
+
+使用自动回充功能
+①先建图并保存
+ros2 launch slam_gmapping slam_gmapping.launch.py
+ros2 launch wheeltec_nav2 save_map.launch.py
+②开启导航功能：
+ros2 launch wheeltec_nav2 wheeltec_nav2.launch.py
+③开启自动回充功能：
+ros2 run auto_recharge_ros2 auto_recharge
+在rviz上，使用话题“charger_position_update”标定充电桩的位置。根据终端提示进行使用
+
+
+其它常用命令
+
+1、单独编译功能包
+如只编译 turn_on_wheeltec_robot
+colcon build --packages-select turn_on_wheeltec_robot
+编译全部功能包
+colcon build
+注意：用户修改launch文件内容后需要编译才能生效。
+
+2、递归修改当前(终端)文件夹下文件修改时间：
+find ./* -exec touch {} \;
+
+3、在工作空间下运行，安装ROS功能包全部依赖（镜像中已配置rosdep）：
+rosdep install --from-paths src --ignore-src -r -y
+
+4、修改系统时间：
+sudo date -s "2022-06-15 09:00:00"
+
+5、使用豆瓣源进行pip安装(网速会快很多)：
+pip install -i https://pypi.doubanio.com/simple/ python包名
+
+6、ssh登录：
+ssh -Y wheeltec@192.168.0.100
+
+7、给文件夹下的所有文件可执行权限：
+sudo chmod -R 777 文件夹
+
+8、打开地图路径：
+cd /home/wheeltec/wheeltec_ros2/src/wheeltec_robot_nav2/map
+手动保存地图：
+ros2 run nav2_map_server map_saver_cli -f ~/map
+
+使用rqt工具查看图像话题：
+rqt_image_view
+
+查看节点与话题关系
+rqt_graph
+
+在终端显示的路径下生成TF树pdf
+ros2 run tf2_tools view_frames
+
+vnc调整分辨率
+xrandr --fb 1024x768
+镜像更新日期：2024.08.13
